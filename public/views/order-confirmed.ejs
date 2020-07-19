@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1,user-scalable=0, minimal-ui"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <title>Order Form</title>
+  </head>
+  <body>
+    <main class="centered-container">
+      <h2>Success! <%-name%>,</h2>
+      <p>
+        Your order of <%-product%> will be sent to your home in <%-province%>,
+        Canada. Thank you!
+      </p>
+    </main>
+    <script>
+      document.getElementById("name").innerText = name;
+      document.getElementById("product").innerText = product;
+      document.getElementById("province").innerText = province;
+    </script>
+  </body>
+</html>
