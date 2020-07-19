@@ -1,11 +1,8 @@
 "use strict";
-
 const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
-
-const { customers } = require("./data/promo");
-
+const { stock, customers } = require("./data/promo");
 express()
   .use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -20,32 +17,30 @@ express()
   .use(bodyParser.json())
   .use(express.urlencoded({ extended: false }))
   .set("view engine", "ejs")
-
   // endpoints
-
   .post("/order", (req, res) => {
-    let returncustomer = false;
-    customers.forEach((Element) => {
+    let returnCustomer = false;
+    customers.forEach((element) => {
       if (
-        req.body.surname == Element.surname &&
-        req.body.givenName == Element.givenName &&
-        req.body.email == Element.email &&
-        req.body.address == Element.address
+        (req.body.surname == element.surname &&
+          req.body.givenName == element.givenName) ||
+        req.body.email == element.email ||
+        req.body.address == element.address
       ) {
-        returncustomer = true;
+        returnCustomer = true;
       }
     });
-    if (req.body.order == "shirt" && req.body.size === "medium") {
+    if (req.body.order === "shirt" && req.body.size === "medium") {
       res.json({
         status: "error",
         error: "unavailable",
       });
-    } else if (returncustomer === true) {
+    } else if (returnCustomer === true) {
       res.json({
         status: "error",
-        error: "repeat customer",
+        error: "repeat-customer",
       });
-    } else if (req.body.country.toLowercase() != "canada") {
+    } else if (req.body.country.toLowerCase() != "canada") {
       res.json({
         status: "error",
         error: "undeliverable",
@@ -62,30 +57,24 @@ express()
       req.body.country === "undefined" ||
       req.body.order === "undefined"
     ) {
-      res,
-        json({
-          status: "error",
-          error: "missing-data",
-        });
-    } else {
       res.json({
-        status: "Success",
+        status: "error",
+        error: "missing-data",
       });
+    } else {
+      res.json({ status: "success" });
       customers.push(req.body);
     }
   })
-
   .get("/order-confirmed", (req, res) => {
     res.render("order-confirmed", {
-      givenName: customers[customers.length - 1].givenName,
-      surname: customers[customers.length - 1].surname,
-      email: customers[customers.length - 1].email,
-      address: customers[customers.length - 1].address,
-      city: customers[customers.length - 1].city,
+      name:
+        customers[customers.length - 1].givenName +
+        " " +
+        customers[customers.length - 1].surname,
+      product: customers[customers.length - 1].order,
       province: customers[customers.length - 1].province,
-      postcode: customers[customers.length - 1].postcode,
     });
   })
-
   .get("*", (req, res) => res.send("Dang. 404."))
   .listen(8000, () => console.log(`Listening on port 8000`));
